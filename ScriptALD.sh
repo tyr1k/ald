@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+#set -x - для отладки
 #объявляем переменные
 domain_name=local.example.ru
 name_network_host=host.local.example.ru
