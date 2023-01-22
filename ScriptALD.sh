@@ -27,7 +27,7 @@ sleep 10s
 		echo "listen-on {
 		127.0.0.1
 		};" >> /etc/bind/named.conf.options
-	    systemctl restart bind9
+	 	rndc reload
 		echo "zone \"${domain_name}\"	{
 		      type master;
 		      file \"/etc/bind/zones/db.${domain_name}\";
@@ -56,17 +56,17 @@ sleep 10s
 		sed -i '13s/1.0.0/1/g' /etc/bind/zones/db.1.168.192
 		sed -i "13s/localhost./${name_network_server}./g" /etc/bind/zones/db.1.168.192
 		echo "4	IN	PTR	${name_network_host}" >> /etc/bind/zones/db.1.168.192
-		systemctl restart bind9
+		rndc reload
 		sed -i "s/127.0.1.1/${network_server}/g"	/etc/hosts
-		ald-init init
-sleep 5
 	sed -i "s/.example.ru/.${domain_name}/g"		/etc/ald/ald.conf
-	sed -i "s/astra.example.ru/${name_network_server}/g"		/etc/ald/ald.conf
-	sed -i 's/SERVER_ON=0/SERVER_ON=1/g'		/etc/ald/ald.conf
-	sed -i 's/CLIENT_ON=0/CLIENT_ON=1/g'		/etc/ald/ald.conf
+	sed -i "s/astra.example.ru/${name_network_server}/g"	/etc/ald/ald.conf
+	sed -i 's/SERVER_ON=0/SERVER_ON=1/g'			/etc/ald/ald.conf
+	sed -i 's/CLIENT_ON=0/CLIENT_ON=1/g'			/etc/ald/ald.conf
 	sed -i "s/DONTFOGET/${name_network_server}/g"		/etc/ald/ald.conf
 	echo "SERVER_EXPORT_DIR=/ald_export_home
-	      CLIENT_MOUNT_DIR=/ald_home" >> /etc/ald/ald.conf
+	      CLIENT_MOUNT_DIR=/ald_home" >> 			/etc/ald/ald.conf
+	      ald-init init
+sleep 5
 #Настраиваем ntp для сервера
     #делаем bkp файла ntp.conf
 	cp /etc/ntp.conf $PWD/ntp.conf_bkp_server_$(date +%d_%m_%Y_%H_%M)
