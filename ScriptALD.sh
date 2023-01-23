@@ -4,8 +4,8 @@
 #set -x # - use for debugging
 
 #declare variables
-name_network_server=dns.local.example.ru
 domain_name=local.example.ru
+name_network_server=dns.local.example.ru
 name_network_host=host.local.example.ru
 name_network_client=arm.local.example.ru
 network_server=192.168.1.1
@@ -21,7 +21,8 @@ if dpkg -l | grep "ald-server" > /dev/null 2>&1
 	sed -i "s/127.0.1.1/${network_server}/g"								/etc/hosts
 	hostnamectl set-hostname $name_network_server
 	
-#Configuring local DNS server
+#configuring local DNS server
+#intall packet for DNS
 	apt install bind9 -y > /dev/null 2>&1
 sleep 3s
 	apt install dnsutils -y /dev/null 2>&1
@@ -45,7 +46,7 @@ sleep 3s
 		      type master;
 			file \"/etc/bind/zones/db.1.168.192\";
 			};" >> 											/etc/bind/named.conf.local
-			
+#create 			
 	mkdir /etc/bind/zones
 	cp /etc/bind/db.local /etc/bind/zones/db.${domain_name}
 	cp /etc/bind/db.127 /etc/bind/zones/db.1.168.192
@@ -122,5 +123,11 @@ sleep 2s
 				echo "Запуск ntp неудачен"
 		    fi    
 	    else dpkg -l | grep "ald-client" > /dev/null 2>&1
-	echo "Инициализировать машину не удалось" && exit -1
+	echo "Host initialized"
+        apt install isc-dhcp-server -y
+        sleep 5
+        sed -i 's/INTERFACESv4=""/INTERFACESv4="eth0"/g'							/etc/default/isc-dhcp-server
+        sed -i 's/INTERFACESv6=""/#INTERFACESv6=""/g'							/etc/default/isc-dhcp-server
+        systemctl restart isc-dhcp-server
+        sed -i
 fi
