@@ -1,8 +1,6 @@
 Вводные данные:
 Сервер - виртуальная машина с Astra SE 1.6 (4.15)(no update) ip address=192.168.1.1 с установленным ald-server
 
-Хост - виртуальная машина с Astra SE 1.6 (4.15)(no update) ip address=192.168.1.2
-
 Клиент - виртуальная машина с Astra SE 1.6 (4.15)(no update) ip address=192.168.1.3 с установленным ald-client MAC-адрес 00:00:00:00:00:00
 
 Задача: bash-скрипт разворота ntp(network time protocol) и настройка ald со статическими клиентами.
