@@ -24,9 +24,9 @@ if dpkg -l | grep "ald-server" > /dev/null 2>&1
 #configuring local DNS server
 #intall packet for DNS
 	apt install bind9 -y > /dev/null 2>&1
-sleep 3s
+
 	apt install dnsutils -y /dev/null 2>&1
-sleep 3s
+
 
 		sed -i 's\// forwarders\forwarders\g' 								/etc/bind/named.conf.options
 		sed -i '14s\//\\g' 										/etc/bind/named.conf.options
@@ -36,8 +36,9 @@ sleep 3s
 		echo "listen-on {
 			127.0.0.1
 			};" >> 											/etc/bind/named.conf.options
-	 	rndc reload
-		echo "zone \"${domain_name}\"	{
+	 	
+		
+echo "zone \"${domain_name}\"	{
 		      type master;
 		      file \"/etc/bind/zones/db.${domain_name}\";
 			};
@@ -46,7 +47,7 @@ sleep 3s
 		      type master;
 			file \"/etc/bind/zones/db.1.168.192\";
 			};" >> 											/etc/bind/named.conf.local
-#create 			
+#create copy for config		
 	mkdir /etc/bind/zones
 	cp /etc/bind/db.local /etc/bind/zones/db.${domain_name}
 	cp /etc/bind/db.127 /etc/bind/zones/db.1.168.192
@@ -107,7 +108,7 @@ echo "subnet 192.168.1.0 netmask ${netmask} {
         range 192.168.1.3 192.168.1.5;
         }" >> /etc/dhcp/dhcpd.conf
   
-#Выделяем статический ip адрес клиенту
+#give static ip to client
  
 echo "host arm {
         hardware ethernet 00:00:00:00:00:00;
@@ -115,12 +116,14 @@ echo "host arm {
     }" >> /etc/dhcp/dhcpd.conf
  
 #add to autostart and start DHCP
-systemctl enable isc-dhcp-server.service
-systemctl start isc-dhcp-server.service
+        systemctl enable isc-dhcp-server.service
+        systemctl start isc-dhcp-server.service
 #add to listen 67 port
-    ufw allow 67/udp
-    ufw reload
-    ufw show
+        ufw allow 67/udp
+        ufw reload
+        ufw show
+
+        echo "ALD-Server successfully configured"
 
 	#configure ntp for server
    	#make bkp ntp.conf
@@ -132,7 +135,8 @@ systemctl start isc-dhcp-server.service
 		sed -i "s/restrict 192.168.123.0 mask 255.255.255.0 notrust/restrict ${network_server} mask ${netmask} nomodify notrap/g" /etc/ntp.conf
 		echo "server 127.127.1.0
 		      fudge 127.127.1.0 stratum 10" >> 								/etc/ntp.conf
-		systemctl enable ntp > /dev/null 2>&1 
+		
+                systemctl enable ntp > /dev/null 2>&1 
 		systemctl start ntp
 		
 		    if ntpq -p |grep "=" > /dev/null 2>&1
@@ -144,15 +148,17 @@ systemctl start isc-dhcp-server.service
     	    elif dpkg -l | grep "ald-client" > /dev/null 2>&1
     then
     
-	echo "Клиент инициализирован"
-	#Задаем доменное имя сервера
+	echo "Client initialized"
+#set domain name for client 
 	sed -i "s/${HOSTNAME}/${name_network_client}/g"								/etc/hosts
 	hostnamectl set-hostname $name_network_client
 		sed -i "s/127.0.1.1/${network_client}/g"							/etc/hosts
 		
 	ald-client join $name_network_server
+
+        echo "ALD-Client successfully configured"
 	    
-	#конфигурируем ntp.conf для клиента
+#configure ntp.conf for client
 	cp /etc/ntp.conf $PWD/ntp.conf_bkp_client_$(date +%d_%m_%Y_%H_%M)
 		echo "server 192.168.1.1 prefer" >> 								/etc/ntp.conf
 		systemctl enable ntp > /dev/null 2>&1
@@ -164,9 +170,9 @@ systemctl start isc-dhcp-server.service
  
 		    if ntpq -p |grep "${network_server}" > /dev/null 2>&1
 			then
-			echo "Клиент ntp успешно синхронизирован с сервером"
+			echo "Client ntp successfully synchronised with server"
 			    else ntpq -p | grep "Connection refused" > /dev/null 2>&1
-				echo "Запуск ntp неудачен"
+				echo "Fail to ntp start"
 		    fi    
 	    else dpkg -l | grep "ald-client" > /dev/null 2>&1
 	echo "Initialized faild"
