@@ -1,19 +1,20 @@
 #!/bin/bash
 #set -x - для отладки
 #объявляем переменные
-domain_name=local.example.ru
-name_network_host=host.local.example.ru
-network_host=192.168.1.4
 name_network_server=dns.local.example.ru
 network_server=192.168.1.1
-name_network_client1=arm1.local.example.ru
-network_client1=192.168.1.2
-name_network_client2=arm2.local.example.ru
-network_client2=192.168.1.3
+domain_name=local.example.ru
+network_host=192.168.1.2
+name_network_host=host.local.example.ru
+name_network_client=arm.local.example.ru
+network_client=192.168.1.3
 netmask=255.255.255.0
 if dpkg -l | grep "ald-server" > /dev/null 2>&1
     then
 	echo "Сервер инициализирован"
+	#Задаем доменное имя сервера
+	sed -i "s/${HOSTNAME}/${name_network_server}/g"	/etc/hosts
+	hostnamectl set-hostname $name_network_server
 #Конфигурируем Локальный сервер DNS
 	apt install bind9 -y > /dev/null 2>&1
 sleep 10s
@@ -89,14 +90,17 @@ sleep 5
     	    elif dpkg -l | grep "ald-client" > /dev/null 2>&1
     then
 	echo "Клиент инициализирован"
-		sed -i "s/127.0.1.1/${network_client1}/g"	/etc/hosts
+	#Задаем доменное имя сервера
+	sed -i "s/${HOSTNAME}/${name_network_client}/g"		/etc/hosts
+	hostnamectl set-hostname $name_network_client
+		sed -i "s/127.0.1.1/${network_client}/g"	/etc/hosts
 	    ald-client join $name_network_server
 	    #конфигурируем ntp.conf для клиента
 	cp /etc/ntp.conf $PWD/ntp.conf_bkp_client_$(date +%d_%m_%Y_%H_%M)
 		echo "server 192.168.1.1 prefer" >> /etc/ntp.conf
 		systemctl enable ntp > /dev/null 2>&1
 		systemctl start ntp
-		    if ntpq -p |grep "${network_server}" > /dev/null/2>&1
+		    if ntpq -p |grep "${network_server}" > /dev/null 2>&1
 			then
 			echo "Клиент ntp успешно синхронизирован с сервером"
 			    else ntpq -p | grep "Connection refused" > /dev/null 2>&1
