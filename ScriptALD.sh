@@ -82,23 +82,23 @@ sleep 2s
 
 #configure dhcp 
 
-apt install isc-dhcp-server -y
+     apt install isc-dhcp-server -y
         sleep 5
         sed -i 's/INTERFACESv4=""/INTERFACESv4="eth0"/g'							/etc/default/isc-dhcp-server
         sed -i 's/INTERFACESv6=""/#INTERFACESv6=""/g'							        /etc/default/isc-dhcp-server
         systemctl restart isc-dhcp-server
         
-sed -i "7s/example.org/${domain_name}/g"                                                                        /etc/dhcp/dhcpd.conf
-sed -i "8s/ns1.example.org, ns2.example.org/${name_network_server}/g"                                           /etc/dhcp/dhcpd.conf
-sed -i '21s/#authoritative;/authoritative;/g'                                                                   /etc/dhcp/dhcpd.conf
-sed -i 's/#subnet 10.5.5.0 netmask 255.255.255.224/subnet 192.168.1.0 netmask 255.255.255.0 /g'                 /etc/dhcp/dhcpd.conf 
-sed -i 's/range 10.5.5.26 10.5.5.30/range 192.168.1.2 192.168.1.5/g'                                            /etc/dhcp/dhcpd.conf
-sed -i "52s/ns1.internal.example.org/${name_network_server}/g"                                                  /etc/dhcp/dhcpd.conf
-sed -i "53s/internal.example.org/${domain_name}/g"                                                              /etc/dhcp/dhcpd.conf
-sed -i '54s/10.5.5.1/192.168.1.10/g'                                                                            /etc/dhcp/dhcpd.conf 
-sed -i "55s/10.5.5.31/${domain_name}/g"                                                                         /etc/dhcp/dhcpd.conf
+        sed -i "7s/example.org/${domain_name}/g"                                                                /etc/dhcp/dhcpd.conf
+        sed -i "8s/ns1.example.org, ns2.example.org/${name_network_server}/g"                                   /etc/dhcp/dhcpd.conf
+        sed -i '21s/#authoritative;/authoritative;/g'                                                           /etc/dhcp/dhcpd.conf
+        sed -i 's/#subnet 10.5.5.0 netmask 255.255.255.224/subnet 192.168.1.0 netmask 255.255.255.0 /g'         /etc/dhcp/dhcpd.conf 
+        sed -i 's/range 10.5.5.26 10.5.5.30/range 192.168.1.2 192.168.1.5/g'                                    /etc/dhcp/dhcpd.conf
+        sed -i "52s/ns1.internal.example.org/${name_network_server}/g"                                          /etc/dhcp/dhcpd.conf
+        sed -i "53s/internal.example.org/${domain_name}/g"                                                      /etc/dhcp/dhcpd.conf
+        sed -i '54s/10.5.5.1/192.168.1.10/g'                                                                    /etc/dhcp/dhcpd.conf 
+        sed -i "55s/10.5.5.31/${domain_name}/g"                                                                 /etc/dhcp/dhcpd.conf
  
-echo "subnet 192.168.1.0 netmask ${netmask} {
+        echo "subnet 192.168.1.0 netmask ${netmask} {
         option routers 192.168.1.10;
         option subnet-mask 255.255.255.0;
         option domain-search \"${domain_name}\";
@@ -108,7 +108,7 @@ echo "subnet 192.168.1.0 netmask ${netmask} {
   
 #give static ip to client
  
-echo "host arm {
+        echo "host arm {
         hardware ethernet 00:00:00:00:00:00;
         fixed-address ${network_client};
     }" >>               /etc/dhcp/dhcpd.conf
