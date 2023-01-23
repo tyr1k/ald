@@ -6,10 +6,8 @@
 #declare variables
 domain_name=local.example.ru
 name_network_server=dns.local.example.ru
-name_network_host=host.local.example.ru
 name_network_client=arm.local.example.ru
 network_server=192.168.1.1
-network_host=192.168.1.2
 network_client=192.168.1.3
 netmask=255.255.255.0
 
@@ -58,16 +56,16 @@ echo "zone \"${domain_name}\"	{
 		sed -i "12s/localhost./${name_network_server}./g" 						/etc/bind/zones/db.${domain_name}
 		sed -i "13s/@/${name_network_server}./g" 							/etc/bind/zones/db.${domain_name}
 		sed -i "13s/127.0.0.1/${network_server}/g" 							/etc/bind/zones/db.${domain_name}
-		sed -i "14s/@/${name_network_host}./g" 								/etc/bind/zones/db.${domain_name}
+		sed -i "14s/@/${name_network_client}./g" 								/etc/bind/zones/db.${domain_name}
 		sed -i '14s/AAAA/A/g' 										/etc/bind/zones/db.${domain_name}
-		sed -i "14s/::1/${network_host}/g" 								/etc/bind/zones/db.${domain_name}
+		sed -i "14s/::1/${network_client}/g" 								/etc/bind/zones/db.${domain_name}
 
 		sed -i "5s/localhost. root.localhost./${name_network_server}. admin.${domain_name}./g" 		/etc/bind/zones/db.1.168.192
 		sed -i "12s/localhost./${name_network_server}./g" 						/etc/bind/zones/db.1.168.192
 		sed -i '12s/@//g' 										/etc/bind/zones/db.1.168.192
 		sed -i '13s/1.0.0/1/g' 										/etc/bind/zones/db.1.168.192
 		sed -i "13s/localhost./${name_network_server}./g" 						/etc/bind/zones/db.1.168.192
-		echo "4	IN	PTR	${name_network_host}" >> 						/etc/bind/zones/db.1.168.192
+		echo "4	IN	PTR	${name_network_client}" >> 						/etc/bind/zones/db.1.168.192
 		
 		rndc reload
 	
