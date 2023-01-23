@@ -25,7 +25,7 @@ if dpkg -l | grep "ald-server" > /dev/null 2>&1
 #intall packet for DNS
 	apt install bind9 -y > /dev/null 2>&1
 
-	apt install dnsutils -y /dev/null 2>&1
+	apt install dnsutils -y > /dev/null 2>&1
 
 
 		sed -i 's\// forwarders\forwarders\g' 								/etc/bind/named.conf.options
