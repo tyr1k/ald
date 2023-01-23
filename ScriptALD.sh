@@ -157,6 +157,11 @@ systemctl start isc-dhcp-server.service
 		echo "server 192.168.1.1 prefer" >> 								/etc/ntp.conf
 		systemctl enable ntp > /dev/null 2>&1
 		systemctl start ntp
+
+        echo "auto eth0
+        iface eth0 inet dhcp" >> /etc/network/interfaces   
+        systemctl restart networking
+ 
 		    if ntpq -p |grep "${network_server}" > /dev/null 2>&1
 			then
 			echo "Клиент ntp успешно синхронизирован с сервером"
