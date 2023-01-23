@@ -8,7 +8,7 @@ domain_name=local.example.ru
 name_network_server=dns.local.example.ru
 name_network_client=arm.local.example.ru
 network_server=192.168.1.1
-network_client=192.168.1.3
+network_client=192.168.1.2
 netmask=255.255.255.0
 
 if dpkg -l | grep "ald-server" > /dev/null 2>&1
@@ -103,7 +103,7 @@ echo "subnet 192.168.1.0 netmask ${netmask} {
         option subnet-mask 255.255.255.0;
         option domain-search \"${domain_name}\";
         option domain-name-servers $network_server;
-        range 192.168.1.3 192.168.1.5;
+        range 192.168.1.2 192.168.1.5;
         }" >>            /etc/dhcp/dhcpd.conf
   
 #give static ip to client
