@@ -1,86 +1,98 @@
+######ScriptALD.sh created for test KT######
 #!/bin/bash
-#set -x - для отладки
-#объявляем переменные
+
+#set -x # - use for debugging
+
+#declare variables
 name_network_server=dns.local.example.ru
-network_server=192.168.1.1
 domain_name=local.example.ru
-network_host=192.168.1.2
 name_network_host=host.local.example.ru
 name_network_client=arm.local.example.ru
+network_server=192.168.1.1
+network_host=192.168.1.2
 network_client=192.168.1.3
 netmask=255.255.255.0
+
 if dpkg -l | grep "ald-server" > /dev/null 2>&1
     then
-	echo "Сервер инициализирован"
-	#Задаем доменное имя сервера
-	sed -i "s/${HOSTNAME}/${name_network_server}/g"	/etc/hosts
+	echo "Server initialized"
+#set domain name for server
+	sed -i "s/${HOSTNAME}/${name_network_server}/g"								/etc/hosts
+	sed -i "s/127.0.1.1/${network_server}/g"								/etc/hosts
 	hostnamectl set-hostname $name_network_server
-#Конфигурируем Локальный сервер DNS
+	
+#Configuring local DNS server
 	apt install bind9 -y > /dev/null 2>&1
-sleep 10s
+sleep 3s
 	apt install dnsutils -y /dev/null 2>&1
-sleep 10s
-		sed -i 's\// forwarders\forwarders\g' /etc/bind/named.conf.options
-		sed -i '14s\//\\g' /etc/bind/named.conf.options
-		sed -i "14s/0.0.0.0;/${network_server};/g" /etc/bind/named.conf.options
-		sed -i '15s\//\\g' /etc/bind/named.conf.options
-		sed -i '24s/any/none/g' /etc/bind/named.conf.options
+sleep 3s
+
+		sed -i 's\// forwarders\forwarders\g' 								/etc/bind/named.conf.options
+		sed -i '14s\//\\g' 										/etc/bind/named.conf.options
+		sed -i "14s/0.0.0.0;/${network_server};/g" 							/etc/bind/named.conf.options
+		sed -i '15s\//\\g' 										/etc/bind/named.conf.options
+		sed -i '24s/any/none/g' 									/etc/bind/named.conf.options
 		echo "listen-on {
-		127.0.0.1
-		};" >> /etc/bind/named.conf.options
+			127.0.0.1
+			};" >> 											/etc/bind/named.conf.options
 	 	rndc reload
 		echo "zone \"${domain_name}\"	{
 		      type master;
 		      file \"/etc/bind/zones/db.${domain_name}\";
-};
+			};
 
 		      zone \"1.168.192.in-addr.arpa\" {
 		      type master;
 			file \"/etc/bind/zones/db.1.168.192\";
-};"			>> /etc/bind/named.conf.local
+			};" >> 											/etc/bind/named.conf.local
+			
 	mkdir /etc/bind/zones
 	cp /etc/bind/db.local /etc/bind/zones/db.${domain_name}
-	cp /etc/bind/db.127   /etc/bind/zones/db.1.168.192
+	cp /etc/bind/db.127 /etc/bind/zones/db.1.168.192
 	chown -R bind:bind /etc/bind/zones
-		sed -i "5s/localhost. root.localhost./${name_network_server}. admin.${domain_name}./g" /etc/bind/zones/db.${domain_name}
-		sed -i '12s/@//g' /etc/bind/zones/db.${domain_name}
-		sed -i "12s/localhost./${name_network_server}./g" /etc/bind/zones/db.${domain_name}
-		sed -i "13s/@/${name_network_server}./g" /etc/bind/zones/db.${domain_name}
-		sed -i "13s/127.0.0.1/${network_server}/g" /etc/bind/zones/db.${domain_name}
-		sed -i "14s/@/${name_network_host}./g" /etc/bind/zones/db.${domain_name}
-		sed -i '14s/AAAA/A/g' /etc/bind/zones/db.${domain_name}
-		sed -i "14s/::1/${network_host}/g" /etc/bind/zones/db.${domain_name}
+	
+		sed -i "5s/localhost. root.localhost./${name_network_server}. admin.${domain_name}./g"		/etc/bind/zones/db.${domain_name}
+		sed -i '12s/@//g' 										/etc/bind/zones/db.${domain_name}
+		sed -i "12s/localhost./${name_network_server}./g" 						/etc/bind/zones/db.${domain_name}
+		sed -i "13s/@/${name_network_server}./g" 							/etc/bind/zones/db.${domain_name}
+		sed -i "13s/127.0.0.1/${network_server}/g" 							/etc/bind/zones/db.${domain_name}
+		sed -i "14s/@/${name_network_host}./g" 								/etc/bind/zones/db.${domain_name}
+		sed -i '14s/AAAA/A/g' 										/etc/bind/zones/db.${domain_name}
+		sed -i "14s/::1/${network_host}/g" 								/etc/bind/zones/db.${domain_name}
 
-		sed -i "5s/localhost. root.localhost./${name_network_server}. admin.${domain_name}./g" /etc/bind/zones/db.1.168.192
-		sed -i "12s/localhost./${name_network_server}./g" /etc/bind/zones/db.1.168.192
-		sed -i '12s/@//g' /etc/bind/zones/db.1.168.192
-		sed -i '13s/1.0.0/1/g' /etc/bind/zones/db.1.168.192
-		sed -i "13s/localhost./${name_network_server}./g" /etc/bind/zones/db.1.168.192
-		echo "4	IN	PTR	${name_network_host}" >> /etc/bind/zones/db.1.168.192
+		sed -i "5s/localhost. root.localhost./${name_network_server}. admin.${domain_name}./g" 		/etc/bind/zones/db.1.168.192
+		sed -i "12s/localhost./${name_network_server}./g" 						/etc/bind/zones/db.1.168.192
+		sed -i '12s/@//g' 										/etc/bind/zones/db.1.168.192
+		sed -i '13s/1.0.0/1/g' 										/etc/bind/zones/db.1.168.192
+		sed -i "13s/localhost./${name_network_server}./g" 						/etc/bind/zones/db.1.168.192
+		echo "4	IN	PTR	${name_network_host}" >> 						/etc/bind/zones/db.1.168.192
+		
 		rndc reload
-		sed -i "s/127.0.1.1/${network_server}/g"	/etc/hosts
-	sed -i "s/.example.ru/.${domain_name}/g"		/etc/ald/ald.conf
-	sed -i "s/astra.example.ru/${name_network_server}/g"	/etc/ald/ald.conf
-	sed -i 's/SERVER_ON=0/SERVER_ON=1/g'			/etc/ald/ald.conf
-	sed -i 's/CLIENT_ON=0/CLIENT_ON=1/g'			/etc/ald/ald.conf
-	sed -i "s/DONTFOGET/${name_network_server}/g"		/etc/ald/ald.conf
+	
+	sed -i "s/.example.ru/.${domain_name}/g"								/etc/ald/ald.conf
+	sed -i "s/astra.example.ru/${name_network_server}/g"							/etc/ald/ald.conf
+	sed -i 's/SERVER_ON=0/SERVER_ON=1/g'									/etc/ald/ald.conf
+	sed -i 's/CLIENT_ON=0/CLIENT_ON=1/g'									/etc/ald/ald.conf
+	sed -i "s/DONTFOGET/${name_network_server}/g"								/etc/ald/ald.conf
 	echo "SERVER_EXPORT_DIR=/ald_export_home
-	      CLIENT_MOUNT_DIR=/ald_home" >> 			/etc/ald/ald.conf
+	      CLIENT_MOUNT_DIR=/ald_home" >> 									/etc/ald/ald.conf
 	      ald-init init
-sleep 5
-#Настраиваем ntp для сервера
-    #делаем bkp файла ntp.conf
+
+sleep 2s
+
+	#configure ntp for server
+   	#make bkp ntp.conf
 	cp /etc/ntp.conf $PWD/ntp.conf_bkp_server_$(date +%d_%m_%Y_%H_%M)
-	    #конфигурируем ntp.conf для сервера
-		sed -i 's/pool 0/#pool 0/g' /etc/ntp.conf
-		sed -i 's/pool 1/#pool 1/g' /etc/ntp.conf
-		sed -i 's/pool 2/#pool 2/g' /etc/ntp.conf
-		sed -i 's/pool 3/#pool 3/g' /etc/ntp.conf
+		sed -i 's/pool 0/#pool 0/g' 									/etc/ntp.conf
+		sed -i 's/pool 1/#pool 1/g' 									/etc/ntp.conf
+		sed -i 's/pool 2/#pool 2/g' 									/etc/ntp.conf
+		sed -i 's/pool 3/#pool 3/g' 									/etc/ntp.conf
 		sed -i "s/restrict 192.168.123.0 mask 255.255.255.0 notrust/restrict ${network_server} mask ${netmask} nomodify notrap/g" /etc/ntp.conf
 		echo "server 127.127.1.0
-		fudge 127.127.1.0 stratum 10" >> /etc/ntp.conf
+		      fudge 127.127.1.0 stratum 10" >> 								/etc/ntp.conf
 		systemctl enable ntp > /dev/null 2>&1 
-		systemctl start ntp 
+		systemctl start ntp
+		
 		    if ntpq -p |grep "=" > /dev/null 2>&1
 			then
 			echo "Сервер ntp успешно запущен"
@@ -89,15 +101,18 @@ sleep 5
 		    fi
     	    elif dpkg -l | grep "ald-client" > /dev/null 2>&1
     then
+    
 	echo "Клиент инициализирован"
 	#Задаем доменное имя сервера
-	sed -i "s/${HOSTNAME}/${name_network_client}/g"		/etc/hosts
+	sed -i "s/${HOSTNAME}/${name_network_client}/g"								/etc/hosts
 	hostnamectl set-hostname $name_network_client
-		sed -i "s/127.0.1.1/${network_client}/g"	/etc/hosts
-	    ald-client join $name_network_server
-	    #конфигурируем ntp.conf для клиента
+		sed -i "s/127.0.1.1/${network_client}/g"							/etc/hosts
+		
+	ald-client join $name_network_server
+	    
+	#конфигурируем ntp.conf для клиента
 	cp /etc/ntp.conf $PWD/ntp.conf_bkp_client_$(date +%d_%m_%Y_%H_%M)
-		echo "server 192.168.1.1 prefer" >> /etc/ntp.conf
+		echo "server 192.168.1.1 prefer" >> 								/etc/ntp.conf
 		systemctl enable ntp > /dev/null 2>&1
 		systemctl start ntp
 		    if ntpq -p |grep "${network_server}" > /dev/null 2>&1
